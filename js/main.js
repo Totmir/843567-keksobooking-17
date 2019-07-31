@@ -39,14 +39,30 @@ var addNoticeFormFields = addNoticeForm.querySelectorAll('fieldset');
 var mapFiltersForm = mapElement.querySelector('.map__filters');
 var mapFiltersFormFields = mapFiltersForm.querySelectorAll('fieldset, select');
 
+/**
+ * Returns random element of an array
+ * @param {Array} elements - array of some elements
+ * @return {*} - random element of the given array
+ */
 var getRandomElementFromArray = function (elements) {
   return elements[Math.floor(Math.random() * elements.length)];
 };
 
+/**
+ * Returns random number form the given range
+ * @param {number} min - minimum of the range
+ * @param {number} max - maximum of the range
+ * @return {number} - random number from the given range
+ */
 var generateRandomNumberFromRange = function (min, max) {
   return min + Math.floor(Math.random() * (max - min));
 };
 
+/**
+ * Generates Ads mock data
+ * @param {number} dataNumber - Number of mock data to generate
+ * @return {Array} - Ads objects array
+ */
 var generateMockData = function (dataNumber) {
   // initialize ads data array
   var ads = [];
@@ -69,6 +85,13 @@ var generateMockData = function (dataNumber) {
   return ads;
 };
 
+/**
+ * Creates map pin DOM Element from given template and ad object
+ * @param {Node} pinTemplate - template for creating map pin element
+ * @param {object} ad - ad object containing data
+ *
+ * @return {Node} pin Element - created pin DOM element
+ */
 var createPinElement = function (pinTemplate, ad) {
   var pinElement = pinTemplate.cloneNode(true);
   var pinImageElement = pinElement.querySelector('img');
@@ -81,8 +104,10 @@ var createPinElement = function (pinTemplate, ad) {
   return pinElement;
 };
 
-//  Creates Map pins DOM elements and renders them to the DOM
-
+/**
+ * Creates Map pins DOM elements and renders them to the DOM
+ * @param {Array} ads - ads data array
+ */
 var renderMapPins = function (ads) {
   var fragment = document.createDocumentFragment();
 
@@ -93,8 +118,9 @@ var renderMapPins = function (ads) {
   mapPinsElement.appendChild(fragment);
 };
 
-//  Disables Add notice form and fields
-
+/**
+ * Disables Add notice form and fields
+ */
 var disableAddNoticeForm = function () {
   addNoticeForm.classList.add('ad-form--disabled');
   addNoticeFormFields.forEach(function (element) {
@@ -102,8 +128,9 @@ var disableAddNoticeForm = function () {
   });
 };
 
-//  Enable Add notice form and fields
-
+/**
+ * Enable Add notice form and fields
+ */
 var enableAddNoticeForm = function () {
   addNoticeForm.classList.remove('ad-form--disabled');
   addNoticeFormFields.forEach(function (element) {
@@ -111,66 +138,85 @@ var enableAddNoticeForm = function () {
   });
 };
 
-//  Disables Map filters form
-
+/**
+ * Disables Map filters form
+ */
 var disableMapFiltersForm = function () {
   mapFiltersFormFields.forEach(function (element) {
     element.disabled = true;
   });
 };
 
-//  Enables Map filters form
-
+/**
+ * Enables Map filters form
+ */
 var enableMapFiltersForm = function () {
   mapFiltersFormFields.forEach(function (element) {
     element.disabled = false;
   });
 };
 
-//  Activates booking page
-
+var isBookingPageActive = false;
+/**
+ * Activates booking page
+ */
 var activateBookingPage = function () {
-  renderMapPins(generateMockData(ADS_NUMBER));
-  mapElement.classList.remove('map--faded');
-  enableAddNoticeForm();
-  enableMapFiltersForm();
+  if (!isBookingPageActive) {
+    renderMapPins(generateMockData(ADS_NUMBER));
+    mapElement.classList.remove('map--faded');
+    enableAddNoticeForm();
+    enableMapFiltersForm();
+
+    isBookingPageActive = true;
+  }
 };
 
-//  Deactivates booking page
-
+/**
+ * Deactivates booking page
+ */
 var deactivateBookingPage = function () {
-  mapElement.classList.add('map--faded');
-  disableAddNoticeForm();
-  disableMapFiltersForm();
+  if (isBookingPageActive) {
+    mapElement.classList.add('map--faded');
+    disableAddNoticeForm();
+    disableMapFiltersForm();
+
+    isBookingPageActive = false;
+  }
 };
-
-//  Sets Add notice form's address field to initial value (center of map__pin--main)
-
-var initializeNoticeAddress = function () {
-  addNoticeForm.querySelector('#address').value =
-    Math.floor((mapPinMainElement.offsetLeft + mapPinMainElement.offsetWidth / 2)) + ', '
-    + Math.floor((mapPinMainElement.offsetTop + mapPinMainElement.offsetHeight / 2));
-};
-
-initializeNoticeAddress();
-deactivateBookingPage();
-mapPinMainElement.addEventListener('click', function () {
-  activateBookingPage();
-});
 
 var addNoticePriceField = addNoticeForm.querySelector('#price');
 var addNoticeTimeInField = addNoticeForm.querySelector('#timein');
 var addNoticeTimeOutField = addNoticeForm.querySelector('#timeout');
+var addNoticeAddressField = addNoticeForm.querySelector('#address');
 
-//  Changes Add Notice form price field min value based on offer type
+/**
+ * Sets add notice form address field to given cooridinates
+ * @param {number} x - x coordinate
+ * @param {number} y - y coordinate
+ */
+var setNoticeAddress = function (x, y) {
+  addNoticeAddressField.value = Math.floor(x) + ', ' + Math.floor(y);
+};
+// set add form address field to initial position
+setNoticeAddress(
+    (mapPinMainElement.offsetLeft + mapPinMainElement.offsetWidth / 2),
+    (mapPinMainElement.offsetTop + mapPinMainElement.offsetHeight / 2)
+);
+deactivateBookingPage();
 
+/**
+ * Changes Add Notice form price field min value based on offer type
+ * @param {string} offerType - given offer type
+ */
 var updateAddNoticeMinPrice = function (offerType) {
   addNoticePriceField.min = OfferTypes[offerType.toUpperCase()].minPrice;
   addNoticePriceField.placeholder = addNoticePriceField.min;
 };
 
-//  Add notice form field change event handler
-
+/**
+ * Add notice form field change event handler
+ * @param {InputEvent} evt - HTML Element input event
+ */
 var onAddNoticeFormFieldChange = function (evt) {
   switch (evt.target.id) {
     case 'type':
@@ -185,3 +231,73 @@ var onAddNoticeFormFieldChange = function (evt) {
   }
 };
 addNoticeForm.addEventListener('input', onAddNoticeFormFieldChange);
+
+/**
+ * Moves main pin element to specifeed X, Y position within fixed boundaries.
+ * @param {number} x - x coordinate
+ * @param {number} y - y coordinate
+ */
+var moveMainPinToPosition = function (x, y) {
+  if (x >= (PinLocation.X_MIN - mapPinMainElement.offsetWidth / 2)
+    && x <= (PinLocation.X_MAX - mapPinMainElement.offsetWidth / 2)) {
+
+    mapPinMainElement.style.left = x + 'px';
+  }
+
+  if (y >= (PinLocation.Y_MIN - mapPinMainElement.offsetHeight)
+    && y <= (PinLocation.Y_MAX - mapPinMainElement.offsetHeight)) {
+
+    mapPinMainElement.style.top = y + 'px';
+  }
+};
+
+mapPinMainElement.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var setupElementCurrentPosition = {
+    x: mapPinMainElement.offsetLeft,
+    y: mapPinMainElement.offsetTop
+  };
+
+  /**
+   * Mouse move handler
+   * @param {MouseEvent} moveEvt - Mouse event DOM object
+   */
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    activateBookingPage();
+
+    var shift = {
+      x: moveEvt.clientX - evt.clientX,
+      y: moveEvt.clientY - evt.clientY,
+    };
+
+    moveMainPinToPosition(
+        setupElementCurrentPosition.x + shift.x,
+        setupElementCurrentPosition.y + shift.y
+    );
+    setNoticeAddress(
+        (mapPinMainElement.offsetLeft + mapPinMainElement.offsetWidth / 2),
+        (mapPinMainElement.offsetTop + mapPinMainElement.offsetHeight)
+    );
+  };
+  document.addEventListener('mousemove', onMouseMove);
+
+  /**
+   * Mouse Up handler
+   * @param {MouseEvent} upEvt - Mouse event DOM object
+   */
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    setNoticeAddress(
+        (mapPinMainElement.offsetLeft + mapPinMainElement.offsetWidth / 2),
+        (mapPinMainElement.offsetTop + mapPinMainElement.offsetHeight)
+    );
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+  document.addEventListener('mouseup', onMouseUp);
+});
