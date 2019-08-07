@@ -4,14 +4,17 @@
   var MAP_PIN_WIDTH = 50;
   var MAP_PIN_HEIGHT = 70;
 
-  var KeyCode = {
-    ESC: 27
-  };
   var pinTemplateElement = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinCardTemplateElement = document.querySelector('#card').content.querySelector('.map__card');
   var cardElement = pinCardTemplateElement.cloneNode(true);
   var mapFiltersContainer = document.querySelector('.map__filters-container');
   var activePin = null;
+  var OfferTypes = {
+    PALACE: 'Дворец',
+    FLAT: 'Квартира',
+    HOUSE: 'Дом',
+    BUNGALO: 'Бунгало'
+  };
 
   /**
    * Makes selected pin active
@@ -32,7 +35,7 @@
    * @param {object} ad - ad object containing data
    * @return {Node} pin Element - created pin DOM element
    */
-  var createPinElement = function (ad) {
+  var create = function (ad) {
     var pinElement = pinTemplateElement.cloneNode(true);
     var pinImageElement = pinElement.querySelector('img');
 
@@ -108,7 +111,7 @@
       setTextContent(card, '.popup__text--price', ad.offer.price, ad.offer.price + '₽/ночь');
     },
     'popup__type': function (card, ad) {
-      setTextContent(card, '.popup__type', ad.offer.type, window.data.OfferTypes[ad.offer.type.toUpperCase()].name);
+      setTextContent(card, '.popup__type', ad.offer.type, OfferTypes[ad.offer.type.toUpperCase()]);
     },
     'popup__text--capacity': function (card, ad) {
       setTextContent(card, '.popup__text--capacity', ad.offer.rooms,
@@ -172,6 +175,11 @@
      */
     var closePopup = function () {
       cardElement.remove();
+      // clear active pin
+      if (activePin) {
+        activePin.classList.remove('map__pin--active');
+        activePin = null;
+      }
     };
 
     cardElement
@@ -186,7 +194,7 @@
      */
     var onKeyPressed = function (evt) {
       // close popup on Esc key
-      if (evt.keyCode === KeyCode.ESC) {
+      if (evt.keyCode === window.utils.KeyCodes.ESC) {
         closePopup();
         document.removeEventListener('keydown', onKeyPressed);
       }
@@ -205,7 +213,7 @@
   };
 
   window.pin = {
-    createPinElement: createPinElement,
+    create: create,
     hideDetails: hideDetails
   };
 })();

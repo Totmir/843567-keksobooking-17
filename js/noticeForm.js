@@ -22,8 +22,15 @@
     2: [2, 3],
     3: [3]
   };
-  var onSaveError;
-  var onSaveSuccess;
+  var offerMinPriceMap = {
+    palace: 10000,
+    flat: 1000,
+    house: 5000,
+    bungalo: 0
+  };
+  var onError;
+  var onSuccess;
+  var onReset;
 
   /**
    * Avatar image loaded callback
@@ -74,16 +81,18 @@
 
   /**
    * Enable Add notice form and fields
-   * @param {function} onSuccess - on form data sucessfuly save callback
-   * @param {function} onError - on form data save error callback
+   * @param {function} onFormSuccess - on form data sucessfuly save callback
+   * @param {function} onFormReset - on form reset callback
+   * @param {function} onFormError - on form data save error callback
    */
-  var enableAddNoticeForm = function (onSuccess, onError) {
+  var enableAddNoticeForm = function (onFormSuccess, onFormReset, onFormError) {
     form.classList.remove('ad-form--disabled');
     formFields.forEach(function (element) {
       element.disabled = false;
     });
-    onSaveSuccess = onSuccess || function () {};
-    onSaveError = onError || function () {};
+    onSuccess = onFormSuccess || function () {};
+    onError = onFormError || function () {};
+    onReset = onFormReset || function () {};
   };
 
   /**
@@ -93,6 +102,7 @@
    */
   var setNoticeAddress = function (x, y) {
     addressField.value = Math.floor(x) + ', ' + Math.floor(y);
+    addressField.placeholder = addressField.value;
   };
 
   /**
@@ -100,7 +110,7 @@
    * @param {string} offerType - given offer type
    */
   var updateAddNoticeMinPrice = function (offerType) {
-    priceField.min = window.data.OfferTypes[offerType.toUpperCase()].minPrice;
+    priceField.min = offerMinPriceMap[offerType];
     priceField.placeholder = priceField.min;
   };
 
@@ -137,7 +147,7 @@
 
   form.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.save(new FormData(form), onSaveSuccess, onSaveError);
+    window.backend.save(new FormData(form), onSuccess, onError);
   });
 
   form.addEventListener('reset', function () {
@@ -147,10 +157,16 @@
     clearPhotos();
     // add empty photo placeholder
     photosContainer.appendChild(photoTemplate.cloneNode(false));
+    // reset price field placeholder to default
+    priceField.placeholder = offerMinPriceMap.flat;
+    // fire callback
+    if (onReset) {
+      onReset();
+    }
   });
 
-  window.fileLoader.setupFileLoader(avatarFileInput, avatarDropZone, onAvatarImageLoaded);
-  window.fileLoader.setupFileLoader(photosFileInput, photosDropZone, onPhotosLoaded);
+  window.fileLoader.setup(avatarFileInput, avatarDropZone, onAvatarImageLoaded);
+  window.fileLoader.setup(photosFileInput, photosDropZone, onPhotosLoaded);
 
   window.noticeForm = {
     enableAddNoticeForm: enableAddNoticeForm,
