@@ -27,7 +27,9 @@
 
     xhr.addEventListener('load', function () {
       if (xhr.status === ResponseCodes.OK) {
-        onLoad(xhr.response);
+        if (typeof onLoad === 'function') {
+          onLoad(xhr.response);
+        }
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
