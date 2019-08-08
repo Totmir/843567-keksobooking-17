@@ -37,8 +37,13 @@
    */
   var renderPins = function (filters) {
     var filteredAds = ads;
+
     if (filters) {
-      filters.forEach(function (filter) {
+      var values = Object.keys(filters).map(function (key) {
+        return filters[key];
+      });
+
+      values.forEach(function (filter) {
         filteredAds = filteredAds.filter(filter);
       });
     }

@@ -4,6 +4,9 @@
   var MAP_PIN_WIDTH = 50;
   var MAP_PIN_HEIGHT = 70;
 
+  var POPUP_IMG_WIDTH = 45;
+  var POPUP_IMG_HEIGHT = 40;
+
   var pinTemplateElement = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinCardTemplateElement = document.querySelector('#card').content.querySelector('.map__card');
   var cardElement = pinCardTemplateElement.cloneNode(true);
@@ -85,7 +88,7 @@
     element.innerHTML = '';
 
     // hide block if no features
-    if (data.length === 0) {
+    if (!data.length) {
       element.style.display = 'none';
       return;
     }
@@ -149,8 +152,8 @@
             var photoElement = document.createElement('img');
             photoElement.src = photo;
             photoElement.classList.add('popup__photo');
-            photoElement.width = 45;
-            photoElement.height = 40;
+            photoElement.width = POPUP_IMG_WIDTH;
+            photoElement.height = POPUP_IMG_HEIGHT;
             photoElement.alt = 'Фотография жилья';
 
             return photoElement;

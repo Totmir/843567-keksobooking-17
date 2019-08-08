@@ -120,9 +120,9 @@
     }
   };
 
-  mapFiltersForm.addEventListener('input', function (evt) {
+  mapFiltersForm.addEventListener('change', function (evt) {
     updateCurrentFilter(evt.target.name, evt.target.value);
-    onFilterChange(Object.values(currentFilter));
+    onFilterChange(currentFilter);
   });
 
   window.filtersForm = {

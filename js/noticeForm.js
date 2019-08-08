@@ -90,9 +90,9 @@
     formFields.forEach(function (element) {
       element.disabled = false;
     });
-    onSuccess = onFormSuccess || function () {};
-    onError = onFormError || function () {};
-    onReset = onFormReset || function () {};
+    onSuccess = onFormSuccess;
+    onError = onFormError;
+    onReset = onFormReset;
   };
 
   /**
